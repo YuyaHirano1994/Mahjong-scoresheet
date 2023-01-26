@@ -1,25 +1,42 @@
-import logo from './logo.svg';
-import './App.css';
+import { useEffect, useState } from "react";
+import Home from "./Home";
+import Login from "./Login";
+import { supabase } from "./supabase";
 
-function App() {
+const App = () => {
+  const [session, setSession] = useState(null);
+
+  const getSessionStatus = async () => {
+    console.log("loading get session");
+    const { data, error } = await supabase.auth.getSession();
+    console.log(data);
+    setSession(data.session);
+  };
+
+  useEffect(() => {
+    const result = getSessionStatus();
+
+    supabase.auth.onAuthStateChange((event, session) => {
+      console.log(event, session);
+      setSession(session);
+    });
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div
+      style={{
+        minWidth: "100vw",
+        minHeight: "100vh",
+        backgroundColor: "#F5F5F5",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      {session ? <Home user={session} /> : <Login />}
     </div>
   );
-}
+};
 
 export default App;
